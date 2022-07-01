@@ -6,11 +6,15 @@ import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ColorPicker;
 
 public class PaintPane extends BorderPane {
 
@@ -23,15 +27,39 @@ public class PaintPane extends BorderPane {
 	Color lineColor = Color.BLACK;
 	Color fillColor = Color.YELLOW;
 
-	// Botones Barra Izquierda
-	ToggleButton selectionButton = new ToggleButton("Seleccionar");
-	ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-	ToggleButton circleButton = new ToggleButton("Círculo");
-	ToggleButton squareButton = new ToggleButton("Cuadrado");
-	ToggleButton ellipseButton = new ToggleButton("Elipse");
-	ToggleButton deleteButton = new ToggleButton("Borrar");
+	//select color red?
 
-	//aca tendriamos que agregar lo de borde y relleno
+	// Botones Barra Izquierda
+	private ToggleButton selectionButton = new ToggleButton("Seleccionar");
+	private ToggleButton rectangleButton = new ToggleButton("Rectángulo");
+	private ToggleButton circleButton = new ToggleButton("Círculo");
+	private ToggleButton squareButton = new ToggleButton("Cuadrado");
+	private ToggleButton ellipseButton = new ToggleButton("Elipse");
+	private ToggleButton deleteButton = new ToggleButton("Borrar");
+
+	private ToggleButton zoomInButton = new ToggleButton("Agrandar");
+
+	private ToggleButton zoomOutButton = new ToggleButton("Achicar");
+
+	private Label borderLabel = new Label("Borde");
+
+	private Slider borderWidthSlider = new Slider(1, 50, 25);
+
+	private final ColorPicker borderColorPicker = new ColorPicker(Color.RED);
+
+	private Label fillLabel = new Label("Relleno");
+
+	private final ColorPicker fillColorPicker = new ColorPicker(Color.YELLOW);
+
+	//Botones barra superior
+
+	private Label undoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón"); //tengo que hacer una coleccion de las cosas que se deshacen
+
+	private ToggleButton undoButton = new ToggleButton("Deshacer");
+
+	private Label redoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón"); //su numero se incrementa cuando se decrementa deshacer
+
+	private ToggleButton redoButton = new ToggleButton("Rehacer");
 
 	// Dibujar una figura
 	Point startPoint;
@@ -45,7 +73,9 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
-		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
+		borderWidthSlider.setShowTickLabels(true);		//COMENTARIO tengo los botones pero todavia no hacen nada, primero corregir muchas cosas de las clases
+		borderWidthSlider.setShowTickMarks(true);
+		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, zoomInButton, zoomOutButton};
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) {
 			tool.setMinWidth(90);
@@ -54,10 +84,17 @@ public class PaintPane extends BorderPane {
 		}
 		VBox buttonsBox = new VBox(10);
 		buttonsBox.getChildren().addAll(toolsArr);
+		buttonsBox.getChildren().addAll(borderLabel, borderWidthSlider, borderColorPicker, fillLabel, fillColorPicker);
 		buttonsBox.setPadding(new Insets(5));
 		buttonsBox.setStyle("-fx-background-color: #999");
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(1);
+
+		HBox topButtonsBox = new HBox(10);
+		topButtonsBox.getChildren().addAll(undoLabel, undoButton, redoButton, redoLabel);		//COMENTARIO estan los botones, falta funcionalidad
+		topButtonsBox.setPadding(new Insets(5));
+		topButtonsBox.setStyle("-fx-background-color: #999");
+		topButtonsBox.setPrefHeight(40);
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
@@ -136,11 +173,11 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseDragged(event -> {
 			if(selectionButton.isSelected()) {
 				Point eventPoint = new Point(event.getX(), event.getY());
-				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
-				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
+				double diffX = (eventPoint.getX() - startPoint.getX());
+				double diffY = (eventPoint.getY() - startPoint.getY());
 				if(selectedFigure instanceof Rectangle) {
 					Rectangle rectangle = (Rectangle) selectedFigure;
-					rectangle.getTopLeft().x += diffX;					//esto claramente va en una clase aparte, no voy a hacerlo para cada figura con instance of etc
+					rectangle.getTopLeft().x += diffX;					//COMENTARIO esto claramente va en una clase aparte, no voy a hacerlo para cada figura con instance of etc
 					rectangle.getBottomRight().x += diffX;
 					rectangle.getTopLeft().y += diffY;
 					rectangle.getBottomRight().y += diffY;
@@ -172,10 +209,11 @@ public class PaintPane extends BorderPane {
 		});
 
 		setLeft(buttonsBox);
+		setTop(topButtonsBox);
 		setRight(canvas);
 	}
 
-	void redrawCanvas() {													//esta funcion asi gigante tambien corregir
+	void redrawCanvas() {													//COMENTARIO esta funcion asi gigante tambien corregir
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Figure figure : canvasState.figures()) {
 			if(figure == selectedFigure) {
@@ -209,7 +247,7 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
-	boolean figureBelongs(Figure figure, Point eventPoint) {		//lo mismo
+	boolean figureBelongs(Figure figure, Point eventPoint) {		//COMENTARIO lo mismo
 		boolean found = false;
 		if(figure instanceof Rectangle) {
 			Rectangle rectangle = (Rectangle) figure;
