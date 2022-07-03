@@ -1,5 +1,18 @@
 package backend.model;
 
-public interface Figure {
+public abstract class Figure {
+    private final Point startPoint, endPoint;
 
+    public Figure(startPoint, endPoint) {
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+    }
+
+    public Point getStartPoint() {
+        return startPoint;
+    }
+
+    public Point getEndPoint() {
+        return endPoint;
+    }
 }

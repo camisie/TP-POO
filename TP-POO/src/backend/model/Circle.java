@@ -1,6 +1,6 @@
 package backend.model;
 
-public class Circle implements Figure {
+public class Circle extends Figure {
 
     protected final Point centerPoint;
     protected final double radius;
