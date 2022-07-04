@@ -2,13 +2,17 @@ package backend.model;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import java.util.Stack;
+
 //lo que las figuras tienen en comun -> se tienen que poder mover, seleccionar, colorear, dibujar
 public abstract class Figure{
     private Color fillColor;
     private Color borderColor;
     private double borderWidth;
+//    protected Stack<Figure> history = new Stack<>();
 
-    private Point[] points;
+    protected Point[] points;
 
     protected Figure(Point[] points) {
         this.points = points;
@@ -42,9 +46,11 @@ public abstract class Figure{
 
     public abstract boolean belongs(Point eventPoint);
 
-    public abstract void zoomIn(int amount );
+    public abstract Figure zoomIn(int amount );
 
-    public abstract void zoomOut(int amount );
+    public abstract Figure zoomOut(int amount );
+
+//    public abstract boolean undo();
 
 
 }

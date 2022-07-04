@@ -35,7 +35,7 @@ public class Rectangle extends Figure {
     }
 
     @Override
-    public  void draw(GraphicsContext gc){
+    public  void draw(GraphicsContext gc) {
         gc.fillRect(getTopLeft().getX(), getTopLeft().getY(),
                 Math.abs(getTopLeft().getX() - getBottomRight().getX()), Math.abs(getTopLeft().getY() - getBottomRight().getY()));
         gc.strokeRect(getTopLeft().getX(), getTopLeft().getY(),
@@ -63,23 +63,41 @@ public class Rectangle extends Figure {
     }
 
     @Override
-    public void zoomIn(int amount) {
+    public Figure zoomIn(int amount) { // tiene que devolver una copia con los cambios
         double amountX = deltaX(amount);
         double amountY = deltaY(amount);
 
-        getTopLeft().x -= amountX;
-        getBottomRight().x += amountX;
-        getTopLeft().y -= amountY;
-        getBottomRight().y += amountY;
+        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
+
+        newRectangle.getTopLeft().x -= amountX;
+        newRectangle.getBottomRight().x += amountX;
+        newRectangle.getTopLeft().y -= amountY;
+        newRectangle.getBottomRight().y += amountY;
+
+        return newRectangle;
     }
     @Override
-    public void zoomOut(int amount) {
+    public Figure zoomOut(int amount) {
         double amountX = deltaX(amount);
         double amountY = deltaY(amount);
 
-        getTopLeft().x += amountX;
-        getBottomRight().x -= amountX;
-        getTopLeft().y += amountY;
-        getBottomRight().y -= amountY;
+        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
+
+        newRectangle.getTopLeft().x += amountX;
+        newRectangle.getBottomRight().x -= amountX;
+        newRectangle.getTopLeft().y += amountY;
+        newRectangle.getBottomRight().y -= amountY;
+
+        return newRectangle;
     }
+
+//    @Override
+//    public boolean undo() {
+//        if ( history.isEmpty() )
+//            return false;
+//
+//        Figure toCopy = history.pop();
+//        this.centerPoint = toCopy.points[0];
+//        return true;
+//    }
 }

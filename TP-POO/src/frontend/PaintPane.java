@@ -30,38 +30,38 @@ public class PaintPane extends BorderPane {
 	//select color red?
 
 	// Botones Barra Izquierda
-	private ToggleButton selectionButton = new ToggleButton("Seleccionar");
-	private ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-	private ToggleButton circleButton = new ToggleButton("Círculo");
-	private ToggleButton squareButton = new ToggleButton("Cuadrado");
-	private ToggleButton ellipseButton = new ToggleButton("Elipse");
-	private ToggleButton deleteButton = new ToggleButton("Borrar");
+	private final ToggleButton selectionButton = new ToggleButton("Seleccionar");
+	private final ToggleButton rectangleButton = new ToggleButton("Rectángulo");
+	private final ToggleButton circleButton = new ToggleButton("Círculo");
+	private final ToggleButton squareButton = new ToggleButton("Cuadrado");
+	private final ToggleButton ellipseButton = new ToggleButton("Elipse");
+	private final ToggleButton deleteButton = new ToggleButton("Borrar");
 
-	private ToggleButton zoomInButton = new ToggleButton("Agrandar");
+	private final ToggleButton zoomInButton = new ToggleButton("Agrandar");
 
-	private ToggleButton zoomOutButton = new ToggleButton("Achicar");
+	private final ToggleButton zoomOutButton = new ToggleButton("Achicar");
 
-	private Label borderLabel = new Label("Borde");
+	private final Label borderLabel = new Label("Borde");
 
-	private Slider borderWidthSlider = new Slider(1, 50, 25);
+	private final Slider borderWidthSlider = new Slider(1, 50, 25);
 
 	private final ColorPicker borderColorPicker = new ColorPicker(Color.RED);
 
-	private Label fillLabel = new Label("Relleno");
+	private final Label fillLabel = new Label("Relleno");
 
 	private final ColorPicker fillColorPicker = new ColorPicker(Color.YELLOW);
 
 	//Botones barra superior
 
-	private Label undoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
+	private final Label undoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
 	//tengo que hacer una coleccion de las cosas que se deshacen
 
-	private ToggleButton undoButton = new ToggleButton("Deshacer");
+	private final ToggleButton undoButton = new ToggleButton("Deshacer");
 
-	private Label redoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
+	private final Label redoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
 	//su numero se incrementa cuando se decrementa deshacer
 
-	private ToggleButton redoButton = new ToggleButton("Rehacer");
+	private final ToggleButton redoButton = new ToggleButton("Rehacer");
 
 	// Dibujar una figura
 	Point startPoint;
@@ -193,17 +193,41 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		zoomInButton.setOnAction(event ->{
+		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
 				selectedFigure.zoomIn(10);
+//				Figure toAdd = selectedFigure.zoomIn(10);
+//				canvasState.deleteFigure(selectedFigure);
+//				canvasState.addFigure(toAdd);
+//				selectedFigure = toAdd;
 				redrawCanvas();
 			}
 		});
 
-		zoomOutButton.setOnAction(event ->{
+		zoomOutButton.setOnAction(event -> {
 			if(selectedFigure != null) {
 				selectedFigure.zoomOut(10);
+//				Figure toAdd = selectedFigure.zoomOut(10);
+//				canvasState.deleteFigure(selectedFigure);
+//				canvasState.addFigure(toAdd);
+//				selectedFigure = toAdd;
 				redrawCanvas();
+			}
+		});
+
+		undoButton.setOnAction(event -> {
+			canvasState.undo();
+			redrawCanvas();
+		});
+
+		redoButton.setOnAction(event -> {
+			canvasState.redo();
+			redrawCanvas();
+		});
+
+		fillColorPicker.setOnAction(event ->{
+			if(selectedFigure != null){
+				selectedFigure.getFillColor();
 			}
 		});
 
@@ -221,56 +245,12 @@ public class PaintPane extends BorderPane {
 				gc.setStroke(lineColor);
 			}
 			gc.setFill(fillColor);
-
-
 			figure.draw(gc);
 
-//			if(figure instanceof Rectangle) {
-//				Rectangle rectangle = (Rectangle) figure;
-//				gc.fillRect(rectangle.getTopLeft().getX(), rectangle.getTopLeft().getY(),
-//						Math.abs(rectangle.getTopLeft().getX() - rectangle.getBottomRight().getX()), Math.abs(rectangle.getTopLeft().getY() - rectangle.getBottomRight().getY()));
-//				gc.strokeRect(rectangle.getTopLeft().getX(), rectangle.getTopLeft().getY(),
-//						Math.abs(rectangle.getTopLeft().getX() - rectangle.getBottomRight().getX()), Math.abs(rectangle.getTopLeft().getY() - rectangle.getBottomRight().getY()));
-//			} else if(figure instanceof Circle) {
-//				Circle circle = (Circle) figure;
-//				double diameter = circle.getRadius() * 2;
-//				gc.fillOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
-//				gc.strokeOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
-//			} else if(figure instanceof Square) {
-//				Square square = (Square) figure;
-//				gc.fillRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-//						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
-//				gc.strokeRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-//						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
-//			} else if(figure instanceof Ellipse) {
-//				Ellipse ellipse = (Ellipse) figure;
-//				gc.strokeOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
-//				gc.fillOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
-//			}
 		}
 	}
 
 	boolean figureBelongs(Figure figure, Point eventPoint) {		//COMENTARIO lo mismo
-
-//		boolean found = false;
-//		if( figure.getClass() == Rectangle.class ) {
-//			Rectangle rectangle = (Rectangle) figure;
-//			found = eventPoint.getX() > rectangle.getTopLeft().getX() && eventPoint.getX() < rectangle.getBottomRight().getX() &&
-//					eventPoint.getY() > rectangle.getTopLeft().getY() && eventPoint.getY() < rectangle.getBottomRight().getY();
-//		} else if(figure instanceof Circle) {
-//			Circle circle = (Circle) figure;
-//			found = Math.sqrt(Math.pow(circle.getCenterPoint().getX() - eventPoint.getX(), 2) +
-//					Math.pow(circle.getCenterPoint().getY() - eventPoint.getY(), 2)) < circle.getRadius();
-//		} else if(figure instanceof Square) {
-//			Square square = (Square) figure;
-//			found = eventPoint.getX() > square.getTopLeft().getX() && eventPoint.getX() < square.getBottomRight().getX() &&
-//					eventPoint.getY() > square.getTopLeft().getY() && eventPoint.getY() < square.getBottomRight().getY();
-//		} else if(figure instanceof Ellipse) {
-//			Ellipse ellipse = (Ellipse) figure;
-//			// Nota: Fórmula aproximada. No es necesario corregirla.
-//			found = ((Math.pow(eventPoint.getX() - ellipse.getCenterPoint().getX(), 2) / Math.pow(ellipse.getsMayorAxis(), 2)) +
-//					(Math.pow(eventPoint.getY() - ellipse.getCenterPoint().getY(), 2) / Math.pow(ellipse.getsMinorAxis(), 2))) <= 0.30;
-//		}
 		return figure.belongs(eventPoint);
 	}
 
