@@ -28,7 +28,7 @@ public class AppMenuBar extends MenuBar {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Acerca De");
             alert.setHeaderText("Paint");
-            alert.setContentText("TPE Final POO De Camila");
+            alert.setContentText("TPE Final POO de Camila, Adolfo y Magdalena");
             alert.showAndWait();
         });
         help.getItems().add(aboutMenuItem);

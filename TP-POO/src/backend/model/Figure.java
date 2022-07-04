@@ -1,8 +1,9 @@
 package backend.model;
 
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 //lo que las figuras tienen en comun -> se tienen que poder mover, seleccionar, colorear, dibujar
-public abstract class Figure implements Movable {
+public abstract class Figure{
     private Color fillColor;
     private Color borderColor;
     private double borderWidth;
@@ -33,12 +34,8 @@ public abstract class Figure implements Movable {
         this.borderWidth = borderWidth;
     }
 
-    @Override
-    public void move(double diffX, double diffY) {
-        for (Point p : points) {
-            p.move(diffX, diffY);
-        }
+    public abstract void move(double diffX, double diffY);
 
-    }
+    public abstract void draw(GraphicsContext gc);
 
 }

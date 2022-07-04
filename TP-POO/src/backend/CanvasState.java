@@ -19,29 +19,8 @@ public class CanvasState {
         figures.remove(figure);
     }
 
-    private final Set<Figure> selectedFigure = new HashSet<>();
-
-    public void addSelectedFigure(Figure figure) {
-        selectedFigure.add(figure);
-    }
-
-    public void removeSelectedFigure(Figure figure) {
-        selectedFigure.remove(figure);
-    }
-
-    private boolean hasSelectedFigure() {
-        return !selectedFigure.isEmpty();
-    }
-
     public Iterable<Figure> figures() {
         return new ArrayList<>(figures);
-    }
-
-    public void moveSelectedFigure(double diffX, double diffY){
-        for (Figure figure : selectedFigure) {
-            figure.move(diffX, diffY);
-        }
-//        figures.forEach(figure -> figure.move(diffX,diffY)); aca muevo todas las figuras a la vez y no es lo que quiero
     }
 
 }
