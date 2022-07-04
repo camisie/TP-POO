@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ColorPicker;
-
+// adolfo quiere poder contribuir
 public class PaintPane extends BorderPane {
 
 	// BackEnd
