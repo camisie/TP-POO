@@ -100,7 +100,7 @@ public class PaintPane extends BorderPane {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
-		canvas.setOnMouseReleased(event -> {
+		canvas.setOnMouseReleased(event -> {		//aca agrego las funciones que dibuje a la coleccion
 			Point endPoint = new Point(event.getX(), event.getY());
 			if(startPoint == null) {
 				return ;
@@ -109,7 +109,7 @@ public class PaintPane extends BorderPane {
 				return ;
 			}
 			Figure newFigure = null;
-			if(rectangleButton.isSelected()) {
+			if(rectangleButton.isSelected()) {							//aca tambien se repite mucho codigo
 				newFigure = new Rectangle(startPoint, endPoint);
 			}
 			else if(circleButton.isSelected()) {
@@ -158,6 +158,7 @@ public class PaintPane extends BorderPane {
 						found = true;
 						selectedFigure = figure;
 						label.append(figure.toString());
+						canvasState.addSelectedFigure(figure);
 					}
 				}
 				if (found) {
@@ -175,27 +176,29 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX());
 				double diffY = (eventPoint.getY() - startPoint.getY());
-				if(selectedFigure instanceof Rectangle) {
-					Rectangle rectangle = (Rectangle) selectedFigure;
-					rectangle.getTopLeft().x += diffX;					//COMENTARIO esto claramente va en una clase aparte, no voy a hacerlo para cada figura con instance of etc
-					rectangle.getBottomRight().x += diffX;
-					rectangle.getTopLeft().y += diffY;
-					rectangle.getBottomRight().y += diffY;
-				} else if(selectedFigure instanceof Circle) {
-					Circle circle = (Circle) selectedFigure;
-					circle.getCenterPoint().x += diffX;
-					circle.getCenterPoint().y += diffY;
-				} else if(selectedFigure instanceof Square) {
-					Square square = (Square) selectedFigure;
-					square.getTopLeft().x += diffX;
-					square.getBottomRight().x += diffX;
-					square.getTopLeft().y += diffY;
-					square.getBottomRight().y += diffY;
-				} else if(selectedFigure instanceof Ellipse) {
-					Ellipse ellipse = (Ellipse) selectedFigure;
-					ellipse.getCenterPoint().x += diffX;
-					ellipse.getCenterPoint().y += diffY;
-				}
+//				if(selectedFigure instanceof Rectangle) {
+//					Rectangle rectangle = (Rectangle) selectedFigure;
+//					rectangle.getTopLeft().x += diffX;					//COMENTARIO esto claramente va en una clase aparte, no voy a hacerlo para cada figura con instance of etc
+//					rectangle.getBottomRight().x += diffX;
+//					rectangle.getTopLeft().y += diffY;
+//					rectangle.getBottomRight().y += diffY;
+//				} else if(selectedFigure instanceof Circle) {
+//					Circle circle = (Circle) selectedFigure;
+//					circle.getCenterPoint().x += diffX;
+//					circle.getCenterPoint().y += diffY;
+//				} else if(selectedFigure instanceof Square) {
+//					Square square = (Square) selectedFigure;
+//					square.getTopLeft().x += diffX;
+//					square.getBottomRight().x += diffX;
+//					square.getTopLeft().y += diffY;
+//					square.getBottomRight().y += diffY;
+//				} else if(selectedFigure instanceof Ellipse) {
+//					Ellipse ellipse = (Ellipse) selectedFigure;
+//					ellipse.getCenterPoint().x += diffX;
+//					ellipse.getCenterPoint().y += diffY;
+//				}
+				canvasState.moveSelectedFigure(diffX,diffY);			//Comentario -> revisar
+				startPoint = eventPoint;
 				redrawCanvas();
 			}
 		});
