@@ -126,10 +126,6 @@ public class PaintPane extends BorderPane {
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
 				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis);
 			}
-			else if(zoomInButton.isSelected()){
-				//hace zoom
-			}
-
 			else {
 				return ;
 			}
@@ -165,15 +161,15 @@ public class PaintPane extends BorderPane {
 					if(figureBelongs(figure, eventPoint)) {
 						found = true;
 						selectedFigure = figure;
-						label.append(figure.toString());
+						label.append(figure); //le borre el to string pq no se si hacia falta
 					}
 				}
 				if (found) {
 					statusPane.updateStatus(label.toString());
-				} else {
-					selectedFigure = null;
+				} else if (selectedFigure != null) {
 					statusPane.updateStatus("Ninguna figura encontrada");
 				}
+
 				redrawCanvas();
 			}
 		});
@@ -193,6 +189,20 @@ public class PaintPane extends BorderPane {
 			if (selectedFigure != null) {
 				canvasState.deleteFigure(selectedFigure);
 				selectedFigure = null;
+				redrawCanvas();
+			}
+		});
+
+		zoomInButton.setOnAction(event ->{
+			if(selectedFigure != null) {
+				selectedFigure.zoomIn(10);
+				redrawCanvas();
+			}
+		});
+
+		zoomOutButton.setOnAction(event ->{
+			if(selectedFigure != null) {
+				selectedFigure.zoomOut(10);
 				redrawCanvas();
 			}
 		});

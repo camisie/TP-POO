@@ -42,11 +42,9 @@ public abstract class Figure{
 
     public abstract boolean belongs(Point eventPoint);
 
-//
-//    public abstract void zoomIn(int amount );
-//
-//
-//    public abstract void zoomIn(int amount );
+    public abstract void zoomIn(int amount );
+
+    public abstract void zoomOut(int amount );
 
 
 }
