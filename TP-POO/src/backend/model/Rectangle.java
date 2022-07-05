@@ -1,14 +1,15 @@
 package backend.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Rectangle extends Figure {
 
     private final Point topLeft, bottomRight;
 
     //faltan validaciones por si el usuario dibuja mal?
-    public Rectangle(Point topLeft, Point bottomRight) {
-        super(new Point[]{topLeft, bottomRight});
+    public Rectangle(Point topLeft, Point bottomRight, Color fillColor, Color borderColor, double borderWidth) {
+        super(new Point[]{topLeft, bottomRight}, fillColor, borderColor, borderWidth);
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
     }
@@ -74,44 +75,9 @@ public class Rectangle extends Figure {
         getBottomRight().y -= deltaY(amount);
     }
 
-    //COMENTARIO: el de abajo en el caso que necesitemos que zoom in/out devuelva una figura, mientras que no usemos el de void
+    @Override
+    public Figure copy() {
+        return new Rectangle(topLeft.copy(), bottomRight.copy(), getFillColor(), getBorderColor(), getBorderWidth());
+    }
 
-    //    @Override
-//    public Figure zoomIn(int amount) { // tiene que devolver una copia con los cambios
-//        double amountX = deltaX(amount);
-//        double amountY = deltaY(amount);
-//
-//        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
-//
-//        newRectangle.getTopLeft().x -= amountX;
-//        newRectangle.getBottomRight().x += amountX;
-//        newRectangle.getTopLeft().y -= amountY;
-//        newRectangle.getBottomRight().y += amountY;
-//
-//        return newRectangle;
-//    }
-//    @Override
-//    public Figure zoomOut(int amount) {
-//        double amountX = deltaX(amount);
-//        double amountY = deltaY(amount);
-//
-//        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
-//
-//        newRectangle.getTopLeft().x += amountX;
-//        newRectangle.getBottomRight().x -= amountX;
-//        newRectangle.getTopLeft().y += amountY;
-//        newRectangle.getBottomRight().y -= amountY;
-//
-//        return newRectangle;
-//    }
-
-//    @Override
-//    public boolean undo() {
-//        if ( history.isEmpty() )
-//            return false;
-//
-//        Figure toCopy = history.pop();
-//        this.centerPoint = toCopy.points[0];
-//        return true;
-//    }
 }

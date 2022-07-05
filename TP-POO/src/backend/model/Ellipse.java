@@ -1,14 +1,15 @@
 package backend.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Ellipse extends Figure {
 
     protected Point centerPoint;
     private double sMayorAxis, sMinorAxis;
 
-    public Ellipse(Point centerPoint, double sMayorAxis, double sMinorAxis) {
-        super(new Point[]{centerPoint});
+    public Ellipse(Point centerPoint, double sMayorAxis, double sMinorAxis, Color fillColor, Color borderColor, double borderWidth) {
+        super(new Point[]{centerPoint}, fillColor, borderColor, borderWidth);
         this.centerPoint = centerPoint;
         this.sMayorAxis = sMayorAxis;
         this.sMinorAxis = sMinorAxis;
@@ -62,6 +63,11 @@ public class Ellipse extends Figure {
     public void zoomOut(int amount) {
         sMayorAxis -= getsMayorAxis() * (double)amount/100;
         sMinorAxis -= getsMinorAxis() * (double)amount/100;
+    }
+
+    @Override
+    public Figure copy() {
+        return new Ellipse(centerPoint, sMayorAxis, sMinorAxis, getFillColor(), getBorderColor(), getBorderWidth());
     }
 
     //    @Override

@@ -8,19 +8,14 @@ import java.util.Stack;
 
 public class CanvasState {
 
-//    private final List<Figure> figures = new ArrayList<>();
-    private final Stack<Figure> figures = new Stack<>();
-
-    private final Stack<Figure> redoes = new Stack<>();
+    private final List<Figure> figures = new ArrayList<>();
 
     public void addFigure(Figure figure) {
         figures.add(figure);
-        redoes.clear();
     }
 
     public void deleteFigure(Figure figure) {
         figures.remove(figure);
-        redoes.add(figure);
     }
 
     public Iterable<Figure> figures() {
@@ -28,13 +23,20 @@ public class CanvasState {
     }
 
 
-    public void undo()
+    public List<Figure> copyState()
     {
-        redoes.add(figures.pop());
+        List<Figure> toReturn = new ArrayList<>();
+        for ( Figure figure : figures )
+        {
+            toReturn.add(figure.copy());
+        }
+
+        return toReturn;
     }
 
-    public void redo()
+    public void setState( List<Figure> toSet )
     {
-        figures.add(redoes.pop());
+        figures.clear();
+        figures.addAll(toSet);
     }
 }

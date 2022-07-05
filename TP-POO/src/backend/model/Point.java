@@ -35,4 +35,8 @@ public class Point{
         return Double.compare(point.x, x) == 0 && Double.compare(point.y, y) == 0;
     }
 
+    public Point copy() {
+        return new Point(x,y);
+    }
+
 }
