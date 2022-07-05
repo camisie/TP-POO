@@ -48,48 +48,62 @@ public class Rectangle extends Figure {
         return eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() && eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
     }
 
-    private double deltaX( int amount )  // 100% returns deltaX
-    {
+    private double deltaX( int amount ){                                    // 100% returns deltaX
         double deltaX = Math.abs( getBottomRight().x - getTopLeft().x );
-        double amountX = (deltaX/2) * (((double)amount)/100); //amount es un porcentaje entero
-        return amountX;
+        return (deltaX/2) * (((double)amount)/100);
     }
 
-    private double deltaY( int amount ) //100% returns deltaY
-    {
+    private double deltaY( int amount ){                                    //100% returns deltaY
         double deltaY = Math.abs( getBottomRight().y - getTopLeft().y );
-        double amountY = (deltaY/2) * (((double)amount)/100); //amount es un porcentaje entero
-        return amountY;
+        return (deltaY/2) * (((double)amount)/100);                         //amount es un porcentaje entero
     }
 
     @Override
-    public Figure zoomIn(int amount) { // tiene que devolver una copia con los cambios
-        double amountX = deltaX(amount);
-        double amountY = deltaY(amount);
-
-        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
-
-        newRectangle.getTopLeft().x -= amountX;
-        newRectangle.getBottomRight().x += amountX;
-        newRectangle.getTopLeft().y -= amountY;
-        newRectangle.getBottomRight().y += amountY;
-
-        return newRectangle;
+    public void zoomIn(int amount) {
+        getTopLeft().x -= deltaX(amount);
+        getBottomRight().x += deltaX(amount);
+        getTopLeft().y -= deltaY(amount);
+        getBottomRight().y += deltaY(amount);
     }
+
     @Override
-    public Figure zoomOut(int amount) {
-        double amountX = deltaX(amount);
-        double amountY = deltaY(amount);
-
-        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
-
-        newRectangle.getTopLeft().x += amountX;
-        newRectangle.getBottomRight().x -= amountX;
-        newRectangle.getTopLeft().y += amountY;
-        newRectangle.getBottomRight().y -= amountY;
-
-        return newRectangle;
+    public void zoomOut(int amount) {
+        getTopLeft().x += deltaX(amount);
+        getBottomRight().x -= deltaX(amount);
+        getTopLeft().y += deltaY(amount);
+        getBottomRight().y -= deltaY(amount);
     }
+
+    //COMENTARIO: el de abajo en el caso que necesitemos que zoom in/out devuelva una figura, mientras que no usemos el de void
+
+    //    @Override
+//    public Figure zoomIn(int amount) { // tiene que devolver una copia con los cambios
+//        double amountX = deltaX(amount);
+//        double amountY = deltaY(amount);
+//
+//        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
+//
+//        newRectangle.getTopLeft().x -= amountX;
+//        newRectangle.getBottomRight().x += amountX;
+//        newRectangle.getTopLeft().y -= amountY;
+//        newRectangle.getBottomRight().y += amountY;
+//
+//        return newRectangle;
+//    }
+//    @Override
+//    public Figure zoomOut(int amount) {
+//        double amountX = deltaX(amount);
+//        double amountY = deltaY(amount);
+//
+//        Rectangle newRectangle = new Rectangle(getTopLeft(),getBottomRight());
+//
+//        newRectangle.getTopLeft().x += amountX;
+//        newRectangle.getBottomRight().x -= amountX;
+//        newRectangle.getTopLeft().y += amountY;
+//        newRectangle.getBottomRight().y -= amountY;
+//
+//        return newRectangle;
+//    }
 
 //    @Override
 //    public boolean undo() {

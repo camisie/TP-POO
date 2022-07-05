@@ -53,26 +53,38 @@ public class Ellipse extends Figure {
     }
 
     @Override
-    public Figure zoomIn(int amount) {
-
-        Ellipse newEllipse = new Ellipse(getCenterPoint(), getsMayorAxis(), getsMinorAxis());
-
-        newEllipse.sMayorAxis += getsMayorAxis() * (double)amount/100;
-        newEllipse.sMinorAxis += getsMinorAxis() * (double)amount/100;
-
-        return newEllipse;
+    public void zoomIn(int amount) {
+        sMayorAxis += getsMayorAxis() * (double)amount/100;
+        sMinorAxis += getsMinorAxis() * (double)amount/100;
     }
 
     @Override
-    public Figure zoomOut(int amount) {
-
-        Ellipse newEllipse = new Ellipse(getCenterPoint(),getsMayorAxis(),getsMinorAxis());
-
-        newEllipse.sMayorAxis -= getsMayorAxis() * (double)amount/100;
-        newEllipse.sMinorAxis -= getsMinorAxis() * (double)amount/100;
-
-        return newEllipse;
+    public void zoomOut(int amount) {
+        sMayorAxis -= getsMayorAxis() * (double)amount/100;
+        sMinorAxis -= getsMinorAxis() * (double)amount/100;
     }
+
+    //    @Override
+//    public Figure zoomIn(int amount) {
+//
+//        Ellipse newEllipse = new Ellipse(getCenterPoint(), getsMayorAxis(), getsMinorAxis());
+//
+//        newEllipse.sMayorAxis += getsMayorAxis() * (double)amount/100;
+//        newEllipse.sMinorAxis += getsMinorAxis() * (double)amount/100;
+//
+//        return newEllipse;
+//    }
+//
+//    @Override
+//    public Figure zoomOut(int amount) {
+//
+//        Ellipse newEllipse = new Ellipse(getCenterPoint(),getsMayorAxis(),getsMinorAxis());
+//
+//        newEllipse.sMayorAxis -= getsMayorAxis() * (double)amount/100;
+//        newEllipse.sMinorAxis -= getsMinorAxis() * (double)amount/100;
+//
+//        return newEllipse;
+//    }
 
 //    @Override
 //    public boolean undo() {

@@ -15,19 +15,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ColorPicker;
-// adolfo quiere poder contribuir
+
 public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
 
 	// Canvas y relacionados
-	Canvas canvas = new Canvas(800, 600);
-	GraphicsContext gc = canvas.getGraphicsContext2D();
-	Color lineColor = Color.BLACK;
-	Color fillColor = Color.YELLOW;
-
-	//select color red?
+	private final Canvas canvas = new Canvas(800, 600);
+	private final GraphicsContext gc = canvas.getGraphicsContext2D();
+	private final Color SELECTED_COLOR = Color.RED;
+	private final int ZOOM_AMOUNT = 10;
 
 	// Botones Barra Izquierda
 	private final ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -45,14 +43,14 @@ public class PaintPane extends BorderPane {
 
 	private final Slider borderWidthSlider = new Slider(1, 50, 25);
 
-	private final ColorPicker borderColorPicker = new ColorPicker(Color.RED);
+	private final ColorPicker borderColorPicker = new ColorPicker(Color.BLACK);		//color default del borde
 
 	private final Label fillLabel = new Label("Relleno");
 
-	private final ColorPicker fillColorPicker = new ColorPicker(Color.YELLOW);
+	private final ColorPicker fillColorPicker = new ColorPicker(Color.YELLOW);		//color default del relleno
+
 
 	//Botones barra superior
-
 	private final Label undoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
 	//tengo que hacer una coleccion de las cosas que se deshacen
 
@@ -75,7 +73,7 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
-		borderWidthSlider.setShowTickLabels(true);		//COMENTARIO tengo los botones pero todavia no hacen nada, primero corregir muchas cosas de las clases
+		borderWidthSlider.setShowTickLabels(true);
 		borderWidthSlider.setShowTickMarks(true);
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, zoomInButton, zoomOutButton};
 		ToggleGroup tools = new ToggleGroup();
@@ -93,7 +91,7 @@ public class PaintPane extends BorderPane {
 		gc.setLineWidth(1);
 
 		HBox topButtonsBox = new HBox(10);
-		topButtonsBox.getChildren().addAll(undoLabel, undoButton, redoButton, redoLabel);		//COMENTARIO estan los botones, falta funcionalidad
+		topButtonsBox.getChildren().addAll(undoLabel, undoButton, redoButton, redoLabel);
 		topButtonsBox.setPadding(new Insets(5));
 		topButtonsBox.setStyle("-fx-background-color: #999");
 		topButtonsBox.setPrefHeight(40);
@@ -102,7 +100,7 @@ public class PaintPane extends BorderPane {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
-		canvas.setOnMouseReleased(event -> {		//aca agrego las funciones que dibuje a la coleccion
+		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if(startPoint == null) {
 				return ;
@@ -111,6 +109,7 @@ public class PaintPane extends BorderPane {
 				return ;
 			}
 			Figure newFigure = null;
+
 			if(rectangleButton.isSelected()) {							//aca tambien se repite mucho codigo
 				newFigure = new Rectangle(startPoint, endPoint);
 			}
@@ -129,6 +128,8 @@ public class PaintPane extends BorderPane {
 			else {
 				return ;
 			}
+			newFigure.setFillColor(fillColorPicker.getValue());
+			newFigure.setBorderColor(borderColorPicker.getValue());
 
 			canvasState.addFigure(newFigure);
 			startPoint = null;
@@ -142,7 +143,7 @@ public class PaintPane extends BorderPane {
 			for(Figure figure : canvasState.figures()) {
 				if(figureBelongs(figure, eventPoint)) {
 					found = true;
-					label.append(figure.toString());
+					label.append(figure);
 				}
 			}
 			if(found) {
@@ -168,8 +169,8 @@ public class PaintPane extends BorderPane {
 					statusPane.updateStatus(label.toString());
 				} else if (selectedFigure != null) {
 					statusPane.updateStatus("Ninguna figura encontrada");
+					selectedFigure = null;
 				}
-
 				redrawCanvas();
 			}
 		});
@@ -195,7 +196,7 @@ public class PaintPane extends BorderPane {
 
 		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				selectedFigure.zoomIn(10);
+				selectedFigure.zoomIn(ZOOM_AMOUNT);
 //				Figure toAdd = selectedFigure.zoomIn(10);
 //				canvasState.deleteFigure(selectedFigure);
 //				canvasState.addFigure(toAdd);
@@ -206,7 +207,7 @@ public class PaintPane extends BorderPane {
 
 		zoomOutButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				selectedFigure.zoomOut(10);
+				selectedFigure.zoomOut(ZOOM_AMOUNT);
 //				Figure toAdd = selectedFigure.zoomOut(10);
 //				canvasState.deleteFigure(selectedFigure);
 //				canvasState.addFigure(toAdd);
@@ -225,9 +226,26 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		fillColorPicker.setOnAction(event ->{
-			if(selectedFigure != null){
-				selectedFigure.getFillColor();
+		fillColorPicker.setOnAction(event -> {
+			if(selectedFigure != null) {
+				gc.setFill(fillColorPicker.getValue());
+				selectedFigure.setFillColor(fillColorPicker.getValue());
+				redrawCanvas();
+			}
+		});
+
+		borderColorPicker.setOnAction(event -> {
+			if(selectedFigure != null) {
+				gc.setStroke(borderColorPicker.getValue());
+				selectedFigure.setBorderColor(borderColorPicker.getValue());
+				redrawCanvas();
+		}});
+
+		borderWidthSlider.setOnMouseDragged(event -> {
+			if(selectedFigure != null) {
+				gc.setLineWidth(borderWidthSlider.getValue());
+				selectedFigure.setBorderWidth(borderWidthSlider.getValue());
+				redrawCanvas();
 			}
 		});
 
@@ -236,32 +254,33 @@ public class PaintPane extends BorderPane {
 		setRight(canvas);
 	}
 
-	void redrawCanvas() {													//COMENTARIO esta funcion asi gigante tambien corregir
+	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Figure figure : canvasState.figures()) {
 			if(figure == selectedFigure) {
-				gc.setStroke(Color.RED);
+				gc.setStroke(SELECTED_COLOR);
 			} else {
-				gc.setStroke(lineColor);
-			}
-			gc.setFill(fillColor);
-			figure.draw(gc);
+				gc.setStroke(figure.getBorderColor());
 
+			}
+			gc.setLineWidth(figure.getBorderWidth());
+			gc.setFill(figure.getFillColor());
+			figure.draw(gc);
 		}
 	}
 
-	boolean figureBelongs(Figure figure, Point eventPoint) {		//COMENTARIO lo mismo
+	boolean figureBelongs(Figure figure, Point eventPoint) {
 		return figure.belongs(eventPoint);
 	}
 
-	private void setDefaultFillColor( Color color )
-	{
-		fillColor = color;
-	}
-
-	private void setDefaultBorderColor( Color color )
-	{
-		lineColor = color;
-	}
+//	private void setDefaultFillColor( Color color )
+//	{
+//		fillColor = color;
+//	}
+//
+//	private void setDefaultBorderColor( Color color )
+//	{
+//		lineColor = color;
+//	}
 
 }
