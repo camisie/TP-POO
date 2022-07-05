@@ -24,7 +24,7 @@ public class Rectangle extends Figure {
 
     @Override
     public String toString() {
-        return String.format("Rectángulo [ %s , %s ]", topLeft, bottomRight);
+        return String.format("Rectángulo", topLeft, bottomRight);
     }
 
     @Override

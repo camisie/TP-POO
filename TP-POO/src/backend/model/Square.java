@@ -11,7 +11,7 @@ public class Square extends Rectangle {     //hereda comportamiento de un rectan
 
     @Override
     public String toString() {
-        return String.format("Cuadrado [ %s , %s ]", getTopLeft(), getBottomRight());
+        return String.format("Cuadrado", getTopLeft(), getBottomRight());
     }
 
 }

@@ -3,7 +3,9 @@ package frontend;
 import backend.CanvasState;
 import backend.model.*;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -15,18 +17,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ColorPicker;
+import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
 
-	private final Stack<List<Figure>> undoes = new Stack<>();
-	private final Stack<List<Figure>> redoes = new Stack<>();
+//	private final Stack<List<Figure>> undoes = new Stack<>();
+	private final Stack<Pair<List<Figure>, Pair<String, String>>> undoes = new Stack<>();
+	private final Stack<Pair<List<Figure>, Pair<String, String>>> redoes = new Stack<>();
+//	private final Stack<String> undoesLabel = new Stack<>();
+//	private final Stack<List<Figure>> redoes = new Stack<>();
+//	private final Stack<String> redoesLabel = new Stack<>();
 
 	// Canvas y relacionados
 	private final Canvas canvas = new Canvas(800, 600);
@@ -58,12 +63,14 @@ public class PaintPane extends BorderPane {
 
 
 	//Botones barra superior
-	private final Label undoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
+	private final Label undoLabel = new Label("No hay acciones que deshacer");
+	private final Label undoCounter = new Label("0");
 	//tengo que hacer una coleccion de las cosas que se deshacen
 
 	private final ToggleButton undoButton = new ToggleButton("Deshacer");
 
-	private final Label redoLabel = new Label("un texto que indique cuál será el efecto de presionar el botón");
+	private final Label redoLabel = new Label("No hay acciones que rehacer");
+	private final Label redoCounter = new Label("0");
 	//su numero se incrementa cuando se decrementa deshacer
 
 	private final ToggleButton redoButton = new ToggleButton("Rehacer");
@@ -98,7 +105,8 @@ public class PaintPane extends BorderPane {
 		gc.setLineWidth(1);
 
 		HBox topButtonsBox = new HBox(10);
-		topButtonsBox.getChildren().addAll(undoLabel, undoButton, redoButton, redoLabel);
+		topButtonsBox.getChildren().addAll(undoLabel,undoCounter,undoButton,redoButton,redoCounter,redoLabel);
+		topButtonsBox.setAlignment(Pos.CENTER);
 		topButtonsBox.setPadding(new Insets(5));
 		topButtonsBox.setStyle("-fx-background-color: #999");
 		topButtonsBox.setPrefHeight(40);
@@ -139,7 +147,10 @@ public class PaintPane extends BorderPane {
 			}
 //			newFigure.setFillColor(fillColorPicker.getValue());
 //			newFigure.setBorderColor(borderColorPicker.getValue());
-			setHistory();
+			String undo = String.format("Borrar %s", newFigure);
+			String redo = String.format("Dibujar %s", newFigure);
+			Pair<String, String> labels = new Pair<>(undo, redo);
+			setHistory(labels);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
@@ -197,7 +208,11 @@ public class PaintPane extends BorderPane {
 
 		deleteButton.setOnAction(event -> {
 			if (selectedFigure != null) {
-				setHistory();
+				String labelOut = String.format("Dibujar %s", selectedFigure);
+				String labelIn = String.format("Borrar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(labelOut,labelIn);
+				setHistory(labels);
+				//setHistory(String.format("Dibujar %s", selectedFigure));
 				canvasState.deleteFigure(selectedFigure);
 				selectedFigure = null;
 				redrawCanvas();
@@ -206,7 +221,11 @@ public class PaintPane extends BorderPane {
 
 		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				setHistory();
+				String labelOut = String.format("Agrandar %s", selectedFigure);			//repetido
+				String labelIn = String.format("Achicar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(labelIn,labelOut);
+				setHistory(labels);
+				//setHistory(String.format("Achicar %s", selectedFigure));
 				selectedFigure.zoomIn(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
@@ -214,27 +233,63 @@ public class PaintPane extends BorderPane {
 
 		zoomOutButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				setHistory();
+				//dupla de strings
+				String labelOut = String.format("Agrandar %s", selectedFigure);
+				String labelIn = String.format("Achicar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(labelOut,labelIn);
+				setHistory(labels);
+				//setHistory(String.format("Agrandar %s", selectedFigure));
 				selectedFigure.zoomOut(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
 		});
 
 		undoButton.setOnAction(event -> {
-			redoes.add(canvasState.copyState());
-			canvasState.setState(undoes.pop());
+
+			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
+			Pair<List<Figure>,Pair<String,String>> aux = undoes.pop();
+
+			redoes.add(current);
+
+			canvasState.setState(aux.getKey());
+			setLabels(aux.getValue());
+
+//			Pair<List<Figure>,String> pair = new Pair(canvasState.copyState(),"EHHHH");
+//			redoes.add(pair);
+//			canvasState.setState(undoes.pop().getKey());
+//			undoLabel = new Label(String.format("%d %s", pair, undoes.size()));
+
+//			redoes.add(canvasState.copyState());
+//			canvasState.setState(undoes.pop());
 			redrawCanvas();
 		});
 
 		redoButton.setOnAction(event -> {
-			undoes.add(canvasState.copyState());
-			canvasState.setState(redoes.pop());
+
+			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
+			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
+
+			undoes.add(current);
+
+			canvasState.setState(aux.getKey());
+			setLabels(aux.getValue());
+
+
+//			Pair<List<Figure>,String> pair = new Pair<>(canvasState.copyState(),l);
+//			undoes.add(pair);
+//			canvasState.setState(redoes.pop().getKey());
+//			redoLabel = new Label(String.format("%d %s",redoes.size(),pair));
+
+//			undoes.add(canvasState.copyState());
+//			canvasState.setState(redoes.pop());
 			redrawCanvas();
 		});
 
 		fillColorPicker.setOnAction(event -> {
 			if(selectedFigure != null) {
-				setHistory();
+				String label = String.format("Cambiar color de relleno %s",selectedFigure);
+				Pair<String,String> labels = new Pair<>(label,label);
+				setHistory(labels);
 				gc.setFill(fillColorPicker.getValue());
 				selectedFigure.setFillColor(fillColorPicker.getValue());
 				redrawCanvas();
@@ -243,7 +298,10 @@ public class PaintPane extends BorderPane {
 
 		borderColorPicker.setOnAction(event -> {
 			if(selectedFigure != null) {
-				setHistory();
+				String label = String.format("Cambiar color del borde %s",selectedFigure);
+				Pair<String,String> labels = new Pair<>(label,label);
+				setHistory(labels);
+				//String.format("Cambiar color de borde de %s", selectedFigure)
 				gc.setStroke(borderColorPicker.getValue());
 				selectedFigure.setBorderColor(borderColorPicker.getValue());
 				redrawCanvas();
@@ -281,10 +339,32 @@ public class PaintPane extends BorderPane {
 		return figure.belongs(eventPoint);
 	}
 
-	private void setHistory() {
-		undoes.add(canvasState.copyState());
+	private void setHistory( Pair<String,String> labels ) {
+		Pair<List<Figure>,Pair<String,String>> pair = new Pair<>(canvasState.copyState(),labels);
+		undoes.add(pair);
 		redoes.clear();
+		setLabels(pair.getValue());
 	}
+
+	private void setLabels( Pair<String,String> pair ) {
+		undoLabel.setText(String.format("%s",undoes.size()==0? "No hay acciones para deshacer":pair.getKey()));
+		redoLabel.setText(String.format("%s",redoes.size()==0? "No hay acciones para rehacer":pair.getValue()));
+		undoCounter.setText(String.format("  %d",undoes.size()));
+		redoCounter.setText(String.format("%d  ",redoes.size()));
+	}
+
+//	private void setUndoLabel( String label )
+//	{
+//		if(!undoes.isEmpty()){
+//
+//		}
+//
+//	}
+//
+//	private void setRedoLabel( String label )
+//	{
+//		if( !redoes.isEmpty() )
+//	}
 
 
 }
