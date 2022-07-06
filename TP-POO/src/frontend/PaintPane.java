@@ -5,7 +5,7 @@ import backend.model.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
+// import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -104,7 +104,7 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(1);
 
-		HBox topButtonsBox = new HBox(10);
+		HBox topButtonsBox = new HBox(10); // repite codigo
 		topButtonsBox.getChildren().addAll(undoLabel,undoCounter,undoButton,redoButton,redoCounter,redoLabel);
 		topButtonsBox.setAlignment(Pos.CENTER);
 		topButtonsBox.setPadding(new Insets(5));
@@ -115,12 +115,17 @@ public class PaintPane extends BorderPane {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
+		final String MESSAGE_DRAW = "Dibujar ";
+		final String MESSAGE_DELETE = "Borrar ";
+
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if(startPoint == null) {
 				return ;
 			}
 			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
+				statusPane.updateStatus("Las figuras deben realizarse desde la esquina superior izquierda hasta la esquina inferior derecha");
+				statusPane.errorColor();
 				return ;
 			}
 			Figure newFigure = null;
@@ -147,9 +152,9 @@ public class PaintPane extends BorderPane {
 			}
 //			newFigure.setFillColor(fillColorPicker.getValue());
 //			newFigure.setBorderColor(borderColorPicker.getValue());
-			String undo = String.format("Borrar %s", newFigure);
-			String redo = String.format("Dibujar %s", newFigure);
-			Pair<String, String> labels = new Pair<>(undo, redo);
+//			String undo = String.format(MESSAGE_DELETE + newFigure);
+//			String redo = String.format(MESSAGE_DRAW + newFigure);
+			Pair<String, String> labels = new Pair<>(String.format(MESSAGE_DELETE + newFigure), String.format(MESSAGE_DRAW + newFigure));
 			setHistory(labels);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
@@ -171,6 +176,7 @@ public class PaintPane extends BorderPane {
 			} else {
 				statusPane.updateStatus(eventPoint.toString());
 			}
+			statusPane.normalColor();
 		});
 
 		canvas.setOnMouseClicked(event -> {
@@ -208,9 +214,9 @@ public class PaintPane extends BorderPane {
 
 		deleteButton.setOnAction(event -> {
 			if (selectedFigure != null) {
-				String labelOut = String.format("Dibujar %s", selectedFigure);
-				String labelIn = String.format("Borrar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(labelOut,labelIn);
+//				String labelOut = String.format("Dibujar %s", selectedFigure);
+//				String labelIn = String.format("Borrar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(String.format(MESSAGE_DRAW + selectedFigure),String.format(MESSAGE_DELETE + selectedFigure));
 				setHistory(labels);
 				//setHistory(String.format("Dibujar %s", selectedFigure));
 				canvasState.deleteFigure(selectedFigure);
@@ -219,11 +225,14 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
+		final String ZOOM_IN = "Agrandar ";
+		final String ZOOM_OUT = "Achicar ";
+
 		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				String labelOut = String.format("Agrandar %s", selectedFigure);			//repetido
-				String labelIn = String.format("Achicar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(labelIn,labelOut);
+//				String labelIn = String.format("Agrandar %s", selectedFigure);			//repetido
+//				String labelOut = String.format("Achicar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(String.format(ZOOM_OUT + selectedFigure),String.format(ZOOM_IN + selectedFigure));
 				setHistory(labels);
 				//setHistory(String.format("Achicar %s", selectedFigure));
 				selectedFigure.zoomIn(ZOOM_AMOUNT);
@@ -234,9 +243,9 @@ public class PaintPane extends BorderPane {
 		zoomOutButton.setOnAction(event -> {
 			if(selectedFigure != null) {
 				//dupla de strings
-				String labelOut = String.format("Agrandar %s", selectedFigure);
-				String labelIn = String.format("Achicar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(labelOut,labelIn);
+//				String labelIn = String.format("Agrandar %s", selectedFigure);
+//				String labelOut = String.format("Achicar %s", selectedFigure);
+				Pair<String,String> labels = new Pair<>(String.format(ZOOM_IN + selectedFigure),String.format(ZOOM_OUT + selectedFigure));
 				setHistory(labels);
 				//setHistory(String.format("Agrandar %s", selectedFigure));
 				selectedFigure.zoomOut(ZOOM_AMOUNT);
