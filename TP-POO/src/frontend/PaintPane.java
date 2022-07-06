@@ -5,7 +5,6 @@ import backend.model.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-// import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -25,18 +24,13 @@ public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
-
-//	private final Stack<List<Figure>> undoes = new Stack<>();
 	private final Stack<Pair<List<Figure>, Pair<String, String>>> undoes = new Stack<>();
 	private final Stack<Pair<List<Figure>, Pair<String, String>>> redoes = new Stack<>();
-//	private final Stack<String> undoesLabel = new Stack<>();
-//	private final Stack<List<Figure>> redoes = new Stack<>();
-//	private final Stack<String> redoesLabel = new Stack<>();
 
 	// Canvas y relacionados
 	private final Canvas canvas = new Canvas(800, 600);
 	private final GraphicsContext gc = canvas.getGraphicsContext2D();
-	private final Color SELECTED_COLOR = Color.RED;						//color default de la figura seleccionada
+	private final Color SELECTED_COLOR = Color.RED;		//color default de la figura seleccionada
 	private final int ZOOM_AMOUNT = 10;
 
 	// Botones Barra Izquierda
@@ -168,7 +162,7 @@ public class PaintPane extends BorderPane {
 //			newFigure.setBorderColor(borderColorPicker.getValue());
 //			String undo = String.format(MESSAGE_DELETE + newFigure);
 //			String redo = String.format(MESSAGE_DRAW + newFigure);
-			Pair<String, String> labels = new Pair<>(String.format(MESSAGE_DELETE + newFigure), String.format(MESSAGE_DRAW + newFigure));
+			Pair<String, String> labels = new Pair<>(MESSAGE_DELETE + newFigure, MESSAGE_DRAW + newFigure);
 			setHistory(labels);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
@@ -228,9 +222,7 @@ public class PaintPane extends BorderPane {
 
 		deleteButton.setOnAction(event -> {
 			if (selectedFigure != null) {
-//				String labelOut = String.format("Dibujar %s", selectedFigure);
-//				String labelIn = String.format("Borrar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(String.format(MESSAGE_DRAW + selectedFigure),String.format(MESSAGE_DELETE + selectedFigure));
+				Pair<String,String> labels = new Pair<>(MESSAGE_DRAW + selectedFigure, MESSAGE_DELETE + selectedFigure);
 				setHistory(labels);
 				//setHistory(String.format("Dibujar %s", selectedFigure));
 				canvasState.deleteFigure(selectedFigure);
@@ -244,11 +236,8 @@ public class PaintPane extends BorderPane {
 
 		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-//				String labelIn = String.format("Agrandar %s", selectedFigure);			//repetido
-//				String labelOut = String.format("Achicar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(String.format(ZOOM_OUT + selectedFigure),String.format(ZOOM_IN + selectedFigure));
+				Pair<String,String> labels = new Pair<>(ZOOM_OUT + selectedFigure, ZOOM_IN + selectedFigure);
 				setHistory(labels);
-				//setHistory(String.format("Achicar %s", selectedFigure));
 				selectedFigure.zoomIn(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
@@ -256,18 +245,19 @@ public class PaintPane extends BorderPane {
 
 		zoomOutButton.setOnAction(event -> {
 			if(selectedFigure != null) {
-				//dupla de strings
-//				String labelIn = String.format("Agrandar %s", selectedFigure);
-//				String labelOut = String.format("Achicar %s", selectedFigure);
-				Pair<String,String> labels = new Pair<>(String.format(ZOOM_IN + selectedFigure),String.format(ZOOM_OUT + selectedFigure));
+				Pair<String,String> labels = new Pair<>(ZOOM_IN + selectedFigure, ZOOM_OUT + selectedFigure);
 				setHistory(labels);
-				//setHistory(String.format("Agrandar %s", selectedFigure));
 				selectedFigure.zoomOut(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
 		});
 
 		undoButton.setOnAction(event -> {
+
+			if(undoes.isEmpty()){
+				statusPane.updateStatus("No hay nada para deshacer");
+				statusPane.errorColor();
+			}
 
 			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
 			Pair<List<Figure>,Pair<String,String>> aux = undoes.pop();
@@ -276,18 +266,14 @@ public class PaintPane extends BorderPane {
 
 			canvasState.setState(aux.getKey());
 			setLabels(aux.getValue());
-
-//			Pair<List<Figure>,String> pair = new Pair(canvasState.copyState(),"EHHHH");
-//			redoes.add(pair);
-//			canvasState.setState(undoes.pop().getKey());
-//			undoLabel = new Label(String.format("%d %s", pair, undoes.size()));
-
-//			redoes.add(canvasState.copyState());
-//			canvasState.setState(undoes.pop());
 			redrawCanvas();
 		});
 
 		redoButton.setOnAction(event -> {
+			if(redoes.isEmpty()){
+				statusPane.updateStatus("No hay nada para rehacer");
+				statusPane.errorColor();
+			}
 
 			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
 			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
@@ -296,15 +282,6 @@ public class PaintPane extends BorderPane {
 
 			canvasState.setState(aux.getKey());
 			setLabels(aux.getValue());
-
-
-//			Pair<List<Figure>,String> pair = new Pair<>(canvasState.copyState(),l);
-//			undoes.add(pair);
-//			canvasState.setState(redoes.pop().getKey());
-//			redoLabel = new Label(String.format("%d %s",redoes.size(),pair));
-
-//			undoes.add(canvasState.copyState());
-//			canvasState.setState(redoes.pop());
 			redrawCanvas();
 		});
 
@@ -324,7 +301,6 @@ public class PaintPane extends BorderPane {
 				String label = String.format("Cambiar color del borde %s",selectedFigure);
 				Pair<String,String> labels = new Pair<>(label,label);
 				setHistory(labels);
-				//String.format("Cambiar color de borde de %s", selectedFigure)
 				gc.setStroke(borderColorPicker.getValue());
 				selectedFigure.setBorderColor(borderColorPicker.getValue());
 				redrawCanvas();
@@ -370,24 +346,9 @@ public class PaintPane extends BorderPane {
 	}
 
 	private void setLabels( Pair<String,String> pair ) {
-		undoLabel.setText(String.format("%s",undoes.size()==0? "No hay acciones para deshacer":pair.getKey()));
-		redoLabel.setText(String.format("%s",redoes.size()==0? "No hay acciones para rehacer":pair.getValue()));
-		undoCounter.setText(String.format("  %d",undoes.size()));
-		redoCounter.setText(String.format("%d  ",redoes.size()));
+		undoLabel.setText(undoes.size()==0? "No hay acciones para deshacer":pair.getKey());
+		redoLabel.setText(redoes.size()==0? "No hay acciones para rehacer":pair.getValue());
+		undoCounter.setText(String.format("%d",undoes.size()));
+		redoCounter.setText(String.format("%d",redoes.size()));
 	}
-
-//	private void setUndoLabel( String label )
-//	{
-//		if(!undoes.isEmpty()){
-//
-//		}
-//
-//	}
-//
-//	private void setRedoLabel( String label )
-//	{
-//		if( !redoes.isEmpty() )
-//	}
-
-
 }
