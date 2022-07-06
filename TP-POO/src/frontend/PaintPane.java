@@ -111,6 +111,20 @@ public class PaintPane extends BorderPane {
 		topButtonsBox.setStyle("-fx-background-color: #999");
 		topButtonsBox.setPrefHeight(40);
 
+		//800
+		undoLabel.setPrefWidth(200);
+		undoLabel.setAlignment(Pos.CENTER_LEFT);
+		undoCounter.setPrefWidth(40);
+		undoCounter.setAlignment(Pos.CENTER_LEFT);
+		undoButton.setPrefWidth(100);
+		undoButton.setAlignment(Pos.CENTER);
+		redoButton.setPrefWidth(100);
+		redoButton.setAlignment(Pos.CENTER);
+		redoCounter.setPrefWidth(40);
+		redoCounter.setAlignment(Pos.CENTER_RIGHT);
+		redoLabel.setPrefWidth(200);
+		redoLabel.setAlignment(Pos.CENTER_RIGHT);
+
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
 		});
