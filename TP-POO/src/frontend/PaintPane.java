@@ -47,7 +47,7 @@ public class PaintPane extends BorderPane {
 
 	private final Label borderLabel = new Label("Borde");
 
-	private final Slider borderWidthSlider = new Slider(1, 50, 25);
+	private final Slider borderWidthSlider = new Slider(1, 50, 1);
 
 	private final ColorPicker borderColorPicker = new ColorPicker(Color.BLACK);		//color default del borde
 
@@ -141,19 +141,19 @@ public class PaintPane extends BorderPane {
 
 			if(rectangleButton.isSelected()) {
 				//aca tambien se repite mucho codigo
-				newFigure = new Rectangle(startPoint, endPoint, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getMin());
+				newFigure = new Rectangle(startPoint, endPoint, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			}
 			else if(circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(startPoint, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getMin());
+				newFigure = new Circle(startPoint, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getMin());
+				newFigure = new Square(startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getMin());
+				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			}
 			else {
 				return ;
@@ -162,6 +162,7 @@ public class PaintPane extends BorderPane {
 //			newFigure.setBorderColor(borderColorPicker.getValue());
 //			String undo = String.format(MESSAGE_DELETE + newFigure);
 //			String redo = String.format(MESSAGE_DRAW + newFigure);
+
 			Pair<String, String> labels = new Pair<>(MESSAGE_DELETE + newFigure, MESSAGE_DRAW + newFigure);
 			setHistory(labels);
 			canvasState.addFigure(newFigure);
@@ -257,6 +258,7 @@ public class PaintPane extends BorderPane {
 			if(undoes.isEmpty()){
 				statusPane.updateStatus("No hay nada para deshacer");
 				statusPane.errorColor();
+				return;
 			}
 
 			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
@@ -264,8 +266,13 @@ public class PaintPane extends BorderPane {
 
 			redoes.add(current);
 
+			String undoL = null;
+			if (!undoes.isEmpty()) {
+				undoL = undoes.peek().getValue().getKey();
+			}
+
 			canvasState.setState(aux.getKey());
-			setLabels(aux.getValue());
+			setLabels(undoL,aux.getValue().getValue());
 			redrawCanvas();
 		});
 
@@ -273,15 +280,21 @@ public class PaintPane extends BorderPane {
 			if(redoes.isEmpty()){
 				statusPane.updateStatus("No hay nada para rehacer");
 				statusPane.errorColor();
+				return;
 			}
 
 			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
 			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
 
+			String redoL = null;
+
+//			if (!redoes.isEmpty()) {
+//				redoL = redoes.peek().getValue().getValue();
+//			}
 			undoes.add(current);
 
 			canvasState.setState(aux.getKey());
-			setLabels(aux.getValue());
+			setLabels(aux.getValue().getKey(),aux.getValue().getValue());	
 			redrawCanvas();
 		});
 
@@ -342,12 +355,13 @@ public class PaintPane extends BorderPane {
 		Pair<List<Figure>,Pair<String,String>> pair = new Pair<>(canvasState.copyState(),labels);
 		undoes.add(pair);
 		redoes.clear();
-		setLabels(pair.getValue());
+		setLabels(pair.getValue().getKey(),pair.getValue().getValue());
 	}
 
-	private void setLabels( Pair<String,String> pair ) {
-		undoLabel.setText(undoes.size()==0? "No hay acciones para deshacer":pair.getKey());
-		redoLabel.setText(redoes.size()==0? "No hay acciones para rehacer":pair.getValue());
+	private void setLabels( String undoL, String redoL ) {
+		undoLabel.setText(undoes.size()==0? "No hay acciones para deshacer":undoL);
+		redoLabel.setText(redoes.size()==0? "No hay acciones para rehacer":redoL);
+//		System.out.println(undoes.pop());
 		undoCounter.setText(String.format("%d",undoes.size()));
 		redoCounter.setText(String.format("%d",redoes.size()));
 	}
