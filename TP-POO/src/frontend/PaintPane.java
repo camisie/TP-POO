@@ -2,6 +2,7 @@ package frontend;
 
 import backend.CanvasState;
 import backend.model.*;
+import frontend.model.FrontFigure;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -24,6 +25,8 @@ public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
+
+	private Pair<String,String> currentPair;
 	private final Stack<Pair<List<Figure>, Pair<String, String>>> undoes = new Stack<>();
 	private final Stack<Pair<List<Figure>, Pair<String, String>>> redoes = new Stack<>();
 
@@ -57,7 +60,7 @@ public class PaintPane extends BorderPane {
 
 
 	//Botones barra superior
-	private final Label undoLabel = new Label("No hay acciones que deshacer");
+	private final Label undoLabel = new Label("No hay acciones hola que deshacer");
 	private final Label undoCounter = new Label("0");
 	//tengo que hacer una coleccion de las cosas que se deshacen
 
@@ -74,6 +77,8 @@ public class PaintPane extends BorderPane {
 
 	// Seleccionar una figura
 	private Figure selectedFigure;
+
+//	private FrontFigure selectedFigure; -> despues hay que hacerlo asi
 
 	// StatusBar
 	private StatusPane statusPane;
@@ -158,13 +163,10 @@ public class PaintPane extends BorderPane {
 			else {
 				return ;
 			}
-//			newFigure.setFillColor(fillColorPicker.getValue());
-//			newFigure.setBorderColor(borderColorPicker.getValue());
-//			String undo = String.format(MESSAGE_DELETE + newFigure);
-//			String redo = String.format(MESSAGE_DRAW + newFigure);
 
 			Pair<String, String> labels = new Pair<>(MESSAGE_DELETE + newFigure, MESSAGE_DRAW + newFigure);
 			setHistory(labels);
+			setCurrent(labels);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
@@ -197,7 +199,7 @@ public class PaintPane extends BorderPane {
 					if(figureBelongs(figure, eventPoint)) {
 						found = true;
 						selectedFigure = figure;
-						label.append(figure); //le borre el to string pq no se si hacia falta
+						label.append(figure);
 					}
 				}
 				if (found) {
@@ -212,11 +214,13 @@ public class PaintPane extends BorderPane {
 
 		canvas.setOnMouseDragged(event -> {
 			if(selectionButton.isSelected()) {
-				Point eventPoint = new Point(event.getX(), event.getY());
-				double diffX = (eventPoint.getX() - startPoint.getX());
-				double diffY = (eventPoint.getY() - startPoint.getY());
-				selectedFigure.move(diffX, diffY);
-				startPoint = eventPoint;
+				if(selectedFigure != null) {
+					Point eventPoint = new Point(event.getX(), event.getY());
+					double diffX = (eventPoint.getX() - startPoint.getX());
+					double diffY = (eventPoint.getY() - startPoint.getY());
+					selectedFigure.move(diffX, diffY);
+					startPoint = eventPoint;
+				}
 				redrawCanvas();
 			}
 		});
@@ -225,7 +229,7 @@ public class PaintPane extends BorderPane {
 			if (selectedFigure != null) {
 				Pair<String,String> labels = new Pair<>(MESSAGE_DRAW + selectedFigure, MESSAGE_DELETE + selectedFigure);
 				setHistory(labels);
-				//setHistory(String.format("Dibujar %s", selectedFigure));
+				setCurrent(labels);
 				canvasState.deleteFigure(selectedFigure);
 				selectedFigure = null;
 				redrawCanvas();
@@ -255,25 +259,36 @@ public class PaintPane extends BorderPane {
 
 		undoButton.setOnAction(event -> {
 
-			if(undoes.isEmpty()){
-				statusPane.updateStatus("No hay nada para deshacer");
-				statusPane.errorColor();
-				return;
-			}
+				if (undoes.isEmpty()) {
+					statusPane.updateStatus("No hay nada para deshacer");
+					statusPane.errorColor();
+					return;
+				}
+				String undoL = null;
+				String redoL = null;
 
-			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
-			Pair<List<Figure>,Pair<String,String>> aux = undoes.pop();
+				if (!undoes.isEmpty()) {
+					undoL = undoes.peek().getValue().getKey();
+				}
+				if (!redoes.isEmpty()) {
+					redoL = redoes.peek().getValue().getValue();
+				}
 
-			redoes.add(current);
+				Pair<List<Figure>, Pair<String, String>> current = new Pair<>(canvasState.copyState(), currentPair);
+				Pair<List<Figure>, Pair<String, String>> aux = undoes.pop();
 
-			String undoL = null;
-			if (!undoes.isEmpty()) {
-				undoL = undoes.peek().getValue().getKey();
-			}
+				currentPair = aux.getValue();
 
-			canvasState.setState(aux.getKey());
-			setLabels(undoL,aux.getValue().getValue());
-			redrawCanvas();
+				redoes.add(current);
+
+				if (!undoes.isEmpty()) {
+					undoL = undoes.peek().getValue().getKey();
+				}
+
+				canvasState.setState(aux.getKey());
+				setLabels(undoL, aux.getValue().getValue());
+				redrawCanvas();
+
 		});
 
 		redoButton.setOnAction(event -> {
@@ -283,18 +298,25 @@ public class PaintPane extends BorderPane {
 				return;
 			}
 
-			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),new Pair<>(undoLabel.getText(),redoLabel.getText()));
-			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
-
 			String redoL = null;
 
+
+			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
+			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
+
+			currentPair = aux.getValue();
+
+			if (!redoes.isEmpty()) {
+				redoL = redoes.peek().getValue().getValue();
+			}
+
 //			if (!redoes.isEmpty()) {
-//				redoL = redoes.peek().getValue().getValue();
+//				redoL = aux.getValue().getValue();
 //			}
 			undoes.add(current);
 
 			canvasState.setState(aux.getKey());
-			setLabels(aux.getValue().getKey(),aux.getValue().getValue());	
+			setLabels(aux.getValue().getKey(),redoL);
 			redrawCanvas();
 		});
 
@@ -303,6 +325,7 @@ public class PaintPane extends BorderPane {
 				String label = String.format("Cambiar color de relleno %s",selectedFigure);
 				Pair<String,String> labels = new Pair<>(label,label);
 				setHistory(labels);
+				setCurrent(labels);
 				gc.setFill(fillColorPicker.getValue());
 				selectedFigure.setFillColor(fillColorPicker.getValue());
 				redrawCanvas();
@@ -314,6 +337,7 @@ public class PaintPane extends BorderPane {
 				String label = String.format("Cambiar color del borde %s",selectedFigure);
 				Pair<String,String> labels = new Pair<>(label,label);
 				setHistory(labels);
+				setCurrent(labels);
 				gc.setStroke(borderColorPicker.getValue());
 				selectedFigure.setBorderColor(borderColorPicker.getValue());
 				redrawCanvas();
@@ -364,5 +388,10 @@ public class PaintPane extends BorderPane {
 //		System.out.println(undoes.pop());
 		undoCounter.setText(String.format("%d",undoes.size()));
 		redoCounter.setText(String.format("%d",redoes.size()));
+	}
+
+	private void setCurrent( Pair<String,String> pair )
+	{
+		currentPair = pair;
 	}
 }

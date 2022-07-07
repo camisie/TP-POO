@@ -3,11 +3,8 @@ package backend.model;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-
-//lo que las figuras tienen en comun -> se tienen que poder mover, seleccionar, colorear, dibujar
 public abstract class Figure{
 
-//    private static final Double DEFAULT_WIDTH = 1.0;
     private Color fillColor;
     private Color borderColor;
 
@@ -60,11 +57,5 @@ public abstract class Figure{
     public abstract void zoomOut(int amount );
 
     public abstract Figure copy();
-
-//    public abstract Figure zoomIn(int amount );
-//
-//    public abstract Figure zoomOut(int amount );
-
-//    public abstract boolean undo();
 
 }
