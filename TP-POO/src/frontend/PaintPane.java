@@ -1,10 +1,9 @@
 package frontend;
 
 import backend.model.*;
-import frontend.model.FrontEllipse;
-import frontend.model.FrontFigure;
-import frontend.model.FrontRectangle;
+import frontend.model.*;
 import javafx.geometry.Insets;
+import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
@@ -18,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -63,7 +63,7 @@ public class PaintPane extends BorderPane {
 
 
 	//Botones barra superior
-	private final Label undoLabel = new Label("No hay acciones hola que deshacer");
+	private final Label undoLabel = new Label("No hay acciones que deshacer");
 	private final Label undoCounter = new Label("0");
 	//tengo que hacer una coleccion de las cosas que se deshacen
 
@@ -110,6 +110,17 @@ public class PaintPane extends BorderPane {
 		topButtonsBox.setStyle("-fx-background-color: #999");
 		topButtonsBox.setPrefHeight(40);
 
+//		undoLabel.setMaxHeight(50);
+//		undoLabel.setMinWidth(320);
+//		undoLabel.setStyle("-fx-background-color: #939");
+//		undoLabel.setTextAlignment(TextAlignment.RIGHT);
+//		undoLabel.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+//		redoLabel.setMaxHeight(50);
+//		redoLabel.setMinWidth(320);
+//		redoLabel.setStyle("-fx-background-color: #992");
+//		redoLabel.setTextAlignment(TextAlignment.RIGHT);
+//		redoLabel.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
+
 		//800
 		undoLabel.setPrefWidth(200);
 		undoLabel.setAlignment(Pos.CENTER_LEFT);
@@ -153,7 +164,6 @@ public class PaintPane extends BorderPane {
 				newFigure = new FrontEllipse(startPoint, circleRadius, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-//				newFigure = new FrontFigure(startPoint,startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 				newFigure = new FrontRectangle(startPoint, new Point(startPoint.getX() + size, startPoint.getY() + size), fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
@@ -266,14 +276,14 @@ public class PaintPane extends BorderPane {
 					return;
 				}
 				String undoL = null;
-				String redoL = null;
-
-				if (!undoes.isEmpty()) {
-					undoL = undoes.peek().getValue().getKey();
-				}
-				if (!redoes.isEmpty()) {
-					redoL = redoes.peek().getValue().getValue();
-				}
+//				String redoL = null;
+//
+//				if (!undoes.isEmpty()) {
+//					undoL = undoes.peek().getValue().getKey();
+//				}
+//				if (!redoes.isEmpty()) {
+//					redoL = redoes.peek().getValue().getValue();
+//				}
 
 				Pair<List<FrontFigure>, Pair<String, String>> current = new Pair<>(canvasState.copyState(), currentPair);
 				Pair<List<FrontFigure>, Pair<String, String>> aux = undoes.pop();

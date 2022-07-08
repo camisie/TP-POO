@@ -46,12 +46,12 @@ public class Rectangle extends Figure {
         return eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() && eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
     }
 
-    private double deltaX( int amount ){                                    // 100% returns deltaX
+    private double deltaX( int amount ) {                                    // 100% returns deltaX
         double deltaX = Math.abs( getBottomRight().x - getTopLeft().x );
         return (deltaX/2) * (((double)amount)/100);
     }
 
-    private double deltaY( int amount ){                                    //100% returns deltaY
+    private double deltaY( int amount ) {                                    //100% returns deltaY
         double deltaY = Math.abs( getBottomRight().y - getTopLeft().y );
         return (deltaY/2) * (((double)amount)/100);                         //amount es un porcentaje entero
     }

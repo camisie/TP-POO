@@ -6,8 +6,7 @@ import javafx.scene.paint.Color;
 public class FrontEllipse extends FrontFigure {
 
     public FrontEllipse(Point centerPoint, double sMayorAxis, double sMinorAxis, Color fillColor, Color borderColor, double borderWidth){
-        // version elipse y circulo
-        figure = new Ellipse( centerPoint, sMayorAxis, sMinorAxis, fillColor, borderColor, borderWidth);
+        figure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis, fillColor, borderColor, borderWidth);
     }
 
     @Override

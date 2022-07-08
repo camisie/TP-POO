@@ -46,12 +46,12 @@ public abstract class FrontFigure {
         return figure.belongs(eventPoint);
     }
 
-    public void zoomIn(int amount )
+    public void zoomIn(int amount)
     {
         figure.zoomIn(amount);
     }
 
-    public void zoomOut(int amount )
+    public void zoomOut(int amount)
     {
         figure.zoomOut(amount);
     }
