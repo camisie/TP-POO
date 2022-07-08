@@ -1,8 +1,9 @@
 package frontend;
 
-import backend.CanvasState;
 import backend.model.*;
+import frontend.model.FrontEllipse;
 import frontend.model.FrontFigure;
+import frontend.model.FrontRectangle;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -27,11 +28,13 @@ public class PaintPane extends BorderPane {
 	CanvasState canvasState;
 
 	private Pair<String,String> currentPair;
-	private final Stack<Pair<List<Figure>, Pair<String, String>>> undoes = new Stack<>();
-	private final Stack<Pair<List<Figure>, Pair<String, String>>> redoes = new Stack<>();
+	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> undoes = new Stack<>();
+	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> redoes = new Stack<>();
 
 	// Canvas y relacionados
-	private final Canvas canvas = new Canvas(800, 600);
+	private static final double CANVAS_WIDTH = 800;
+	private static final double CANVAS_HEIGHT = 600;
+	private final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	private final GraphicsContext gc = canvas.getGraphicsContext2D();
 	private final Color SELECTED_COLOR = Color.RED;		//color default de la figura seleccionada
 	private final int ZOOM_AMOUNT = 10;
@@ -75,13 +78,10 @@ public class PaintPane extends BorderPane {
 	// Dibujar una figura
 	private Point startPoint;
 
-	// Seleccionar una figura
-	private Figure selectedFigure;
-
-//	private FrontFigure selectedFigure; -> despues hay que hacerlo asi
+	private FrontFigure selectedFigure;
 
 	// StatusBar
-	private StatusPane statusPane;
+	private final StatusPane statusPane;
 
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
@@ -141,24 +141,25 @@ public class PaintPane extends BorderPane {
 				statusPane.errorColor();
 				return ;
 			}
-			Figure newFigure = null;
+			FrontFigure newFigure;
 
 
 			if(rectangleButton.isSelected()) {
 				//aca tambien se repite mucho codigo
-				newFigure = new Rectangle(startPoint, endPoint, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontRectangle(startPoint, endPoint, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			}
 			else if(circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(startPoint, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontEllipse(startPoint, circleRadius, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+//				newFigure = new FrontFigure(startPoint,startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontRectangle(startPoint, new Point(startPoint.getX() + size, startPoint.getY() + size), fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontEllipse(centerPoint, sMayorAxis, sMinorAxis, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			}
 			else {
 				return ;
@@ -176,7 +177,7 @@ public class PaintPane extends BorderPane {
 			Point eventPoint = new Point(event.getX(), event.getY());
 			boolean found = false;
 			StringBuilder label = new StringBuilder();
-			for(Figure figure : canvasState.figures()) {
+			for(FrontFigure figure : canvasState.figures()) {
 				if(figureBelongs(figure, eventPoint)) {
 					found = true;
 					label.append(figure);
@@ -195,7 +196,7 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				boolean found = false;
 				StringBuilder label = new StringBuilder("Se seleccionó: ");
-				for (Figure figure : canvasState.figures()) {
+				for (FrontFigure figure : canvasState.figures()) {
 					if(figureBelongs(figure, eventPoint)) {
 						found = true;
 						selectedFigure = figure;
@@ -274,8 +275,8 @@ public class PaintPane extends BorderPane {
 					redoL = redoes.peek().getValue().getValue();
 				}
 
-				Pair<List<Figure>, Pair<String, String>> current = new Pair<>(canvasState.copyState(), currentPair);
-				Pair<List<Figure>, Pair<String, String>> aux = undoes.pop();
+				Pair<List<FrontFigure>, Pair<String, String>> current = new Pair<>(canvasState.copyState(), currentPair);
+				Pair<List<FrontFigure>, Pair<String, String>> aux = undoes.pop();
 
 				currentPair = aux.getValue();
 
@@ -284,7 +285,6 @@ public class PaintPane extends BorderPane {
 				if (!undoes.isEmpty()) {
 					undoL = undoes.peek().getValue().getKey();
 				}
-
 				canvasState.setState(aux.getKey());
 				setLabels(undoL, aux.getValue().getValue());
 				redrawCanvas();
@@ -301,8 +301,8 @@ public class PaintPane extends BorderPane {
 			String redoL = null;
 
 
-			Pair<List<Figure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
-			Pair<List<Figure>,Pair<String,String>> aux = redoes.pop();
+			Pair<List<FrontFigure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
+			Pair<List<FrontFigure>,Pair<String,String>> aux = redoes.pop();
 
 			currentPair = aux.getValue();
 
@@ -358,7 +358,7 @@ public class PaintPane extends BorderPane {
 
 	private void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		for(Figure figure : canvasState.figures()) {
+		for(FrontFigure figure : canvasState.figures()) {
 			if(figure == selectedFigure) {
 				gc.setStroke(SELECTED_COLOR);
 			} else {
@@ -371,12 +371,12 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
-	private boolean figureBelongs(Figure figure, Point eventPoint) {
+	private boolean figureBelongs(FrontFigure figure, Point eventPoint) {
 		return figure.belongs(eventPoint);
 	}
 
 	private void setHistory( Pair<String,String> labels ) {
-		Pair<List<Figure>,Pair<String,String>> pair = new Pair<>(canvasState.copyState(),labels);
+		Pair<List<FrontFigure>,Pair<String,String>> pair = new Pair<>(canvasState.copyState(),labels);
 		undoes.add(pair);
 		redoes.clear();
 		setLabels(pair.getValue().getKey(),pair.getValue().getValue());

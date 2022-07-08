@@ -1,5 +1,4 @@
 package backend.model;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -7,9 +6,8 @@ public class Rectangle extends Figure {
 
     private final Point topLeft, bottomRight;
 
-    //faltan validaciones por si el usuario dibuja mal?
     public Rectangle(Point topLeft, Point bottomRight, Color fillColor, Color borderColor, double borderWidth) {
-        super(new Point[]{topLeft, bottomRight}, fillColor, borderColor, borderWidth);
+        super(new Point[]{topLeft, bottomRight}, 0, 0, fillColor, borderColor, borderWidth);
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
     }
@@ -24,7 +22,7 @@ public class Rectangle extends Figure {
 
     @Override
     public String toString() {
-        return String.format("Rectángulo", topLeft, bottomRight);
+        return "Rectángulo";
     }
 
     @Override
@@ -41,7 +39,6 @@ public class Rectangle extends Figure {
                 Math.abs(getTopLeft().getX() - getBottomRight().getX()), Math.abs(getTopLeft().getY() - getBottomRight().getY()));
         gc.strokeRect(getTopLeft().getX(), getTopLeft().getY(),
                 Math.abs(getTopLeft().getX() - getBottomRight().getX()), Math.abs(getTopLeft().getY() - getBottomRight().getY()));
-
     }
 
     @Override
@@ -74,7 +71,6 @@ public class Rectangle extends Figure {
         getTopLeft().y += deltaY(amount);
         getBottomRight().y -= deltaY(amount);
     }
-
     @Override
     public Figure copy() {
         return new Rectangle(topLeft.copy(), bottomRight.copy(), getFillColor(), getBorderColor(), getBorderWidth());

@@ -1,35 +1,35 @@
 package frontend.model;
-
 import backend.model.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class FrontFigure {
+public abstract class FrontFigure {
 
-    private Figure figure;
+    protected Figure figure;
 
-
-    public FrontFigure(Point topLeft, Point bottomRight, Color fillColor, Color borderColor, double borderWidth){
-        //version rectangulo
-        figure = new Rectangle(topLeft, bottomRight, fillColor, borderColor, borderWidth);
+    public Color getFillColor() {
+        return figure.getFillColor();
     }
-    //con este tambien usamos el cuadrado
 
-    public FrontFigure(Point centerPoint, double sMayorAxis, double sMinorAxis, Color fillColor, Color borderColor, double borderWidth){
-        //version ellipse
-        figure = new Ellipse( centerPoint, sMayorAxis, sMinorAxis, fillColor, borderColor, borderWidth);
+    public Color getBorderColor() {
+        return figure.getBorderColor();
     }
-    //con este tambien usamos el circulo
 
-    //version cuadrado
-//    public FrontFigure(Point topLeft, double size, Color fillColor, Color borderColor, double borderWidth){
-//        figure = new Square(topLeft, size, fillColor, borderColor, borderWidth);
-//    }
-//
-//    //version circulo
-//    public FrontFigure(Point centerPoint, double radius, Color fillColor, Color borderColor, double borderWidth){
-//        figure = new Circle( centerPoint, radius, fillColor, borderColor, borderWidth);
-//    }
+    public double getBorderWidth() {
+        return figure.getBorderWidth();
+    }
+
+    public void setFillColor(Color fillColor) {
+        figure.setFillColor(fillColor);
+    }
+
+    public void setBorderColor(Color borderColor) {
+        figure.setBorderColor(borderColor);
+    }
+
+    public void setBorderWidth(double borderWidth) {
+        figure.setBorderWidth(borderWidth);
+    }
 
     public void move(double diffX, double diffY)
     {
@@ -40,8 +40,6 @@ public class FrontFigure {
     {
         figure.draw(gc);
     }
-
-    //para saber si selecciono una figura
 
     public boolean belongs(Point eventPoint)
     {
@@ -58,10 +56,7 @@ public class FrontFigure {
         figure.zoomOut(amount);
     }
 
-    public Figure copy()
-    {
-        return figure.copy();
-    }
+    public abstract FrontFigure copy();
 
     @Override
     public String toString() {

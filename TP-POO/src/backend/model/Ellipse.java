@@ -1,35 +1,23 @@
 package backend.model;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Ellipse extends Figure {
 
     protected Point centerPoint;
-    private double sMayorAxis, sMinorAxis;
 
     public Ellipse(Point centerPoint, double sMayorAxis, double sMinorAxis, Color fillColor, Color borderColor, double borderWidth) {
-        super(new Point[]{centerPoint}, fillColor, borderColor, borderWidth);
+        super(new Point[]{centerPoint}, sMayorAxis, sMinorAxis,fillColor, borderColor, borderWidth);
         this.centerPoint = centerPoint;
-        this.sMayorAxis = sMayorAxis;
-        this.sMinorAxis = sMinorAxis;
     }
 
     @Override
     public String toString() {
-        return String.format("Elipse", centerPoint, sMayorAxis, sMinorAxis);
+        return "Elipse";
     }
 
     public Point getCenterPoint() {
         return centerPoint;
-    }
-
-    public double getsMayorAxis() {
-        return sMayorAxis;
-    }
-
-    public double getsMinorAxis() {
-        return sMinorAxis;
     }
 
     @Override
@@ -69,37 +57,4 @@ public class Ellipse extends Figure {
     public Figure copy() {
         return new Ellipse(centerPoint, sMayorAxis, sMinorAxis, getFillColor(), getBorderColor(), getBorderWidth());
     }
-
-    //    @Override
-//    public Figure zoomIn(int amount) {
-//
-//        Ellipse newEllipse = new Ellipse(getCenterPoint(), getsMayorAxis(), getsMinorAxis());
-//
-//        newEllipse.sMayorAxis += getsMayorAxis() * (double)amount/100;
-//        newEllipse.sMinorAxis += getsMinorAxis() * (double)amount/100;
-//
-//        return newEllipse;
-//    }
-//
-//    @Override
-//    public Figure zoomOut(int amount) {
-//
-//        Ellipse newEllipse = new Ellipse(getCenterPoint(),getsMayorAxis(),getsMinorAxis());
-//
-//        newEllipse.sMayorAxis -= getsMayorAxis() * (double)amount/100;
-//        newEllipse.sMinorAxis -= getsMinorAxis() * (double)amount/100;
-//
-//        return newEllipse;
-//    }
-
-//    @Override
-//    public boolean undo() {
-//        if ( history.isEmpty() )
-//            return false;
-//
-//        Figure toCopy = history.pop();
-//        this.sMinorAxis = toCopy.points[1];
-//        this.sMayorAxis
-//        return true;
-//    }
 }

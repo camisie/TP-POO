@@ -1,23 +1,37 @@
 package backend.model;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public abstract class Figure{
 
-    private Color fillColor;
-    private Color borderColor;
-
-    private double borderWidth;
-
-
     protected Point[] points;
 
-    protected Figure(Point[] points, Color fillColor, Color borderColor, double borderWidth) {
+    protected double sMayorAxis;
+    protected double sMinorAxis;
+
+    private Color fillColor;
+    private Color borderColor;
+    private double borderWidth;
+
+    protected Figure(Point[] points, double sMayorAxis, double sMinorAxis, Color fillColor, Color borderColor, double borderWidth) {
         this.points = points;
         this.fillColor = fillColor;
         this.borderColor = borderColor;
         this.borderWidth = borderWidth;
+        this.sMayorAxis = sMayorAxis;
+        this.sMinorAxis = sMinorAxis;
+    }
+
+    public Point[] getPoints(){
+        return points;
+    }
+
+    public double getsMayorAxis(){
+        return sMayorAxis;
+    }
+
+    public double getsMinorAxis(){
+        return sMinorAxis;
     }
 
     public Color getFillColor() {
@@ -47,8 +61,6 @@ public abstract class Figure{
     public abstract void move(double diffX, double diffY);
 
     public abstract void draw(GraphicsContext gc);
-
-    //para saber si selecciono una figura
 
     public abstract boolean belongs(Point eventPoint);
 
