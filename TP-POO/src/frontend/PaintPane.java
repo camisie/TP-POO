@@ -27,7 +27,9 @@ public class PaintPane extends BorderPane {
 	// BackEnd
 	CanvasState canvasState;
 
-	private Pair<String,String> currentPair;
+	private Pair<String,String> currentPair = null;
+
+	private boolean redid;
 	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> undoes = new Stack<>();
 	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> redoes = new Stack<>();
 
@@ -151,10 +153,10 @@ public class PaintPane extends BorderPane {
 			}
 			else if(circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new FrontEllipse(startPoint, circleRadius, circleRadius,fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontCircle(startPoint, circleRadius, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new FrontRectangle(startPoint, new Point(startPoint.getX() + size, startPoint.getY() + size), fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
+				newFigure = new FrontSquare(startPoint, size, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			} else if(ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
@@ -244,6 +246,7 @@ public class PaintPane extends BorderPane {
 			if(selectedFigure != null) {
 				Pair<String,String> labels = new Pair<>(ZOOM_OUT + selectedFigure, ZOOM_IN + selectedFigure);
 				setHistory(labels);
+				setCurrent(labels);
 				selectedFigure.zoomIn(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
@@ -253,6 +256,7 @@ public class PaintPane extends BorderPane {
 			if(selectedFigure != null) {
 				Pair<String,String> labels = new Pair<>(ZOOM_IN + selectedFigure, ZOOM_OUT + selectedFigure);
 				setHistory(labels);
+				setCurrent(labels);
 				selectedFigure.zoomOut(ZOOM_AMOUNT);
 				redrawCanvas();
 			}
@@ -280,6 +284,8 @@ public class PaintPane extends BorderPane {
 
 				currentPair = aux.getValue();
 
+				redid = true;
+
 				redoes.add(current);
 
 				if (!undoes.isEmpty()) {
@@ -298,17 +304,18 @@ public class PaintPane extends BorderPane {
 				return;
 			}
 
-			String redoL = null;
+			String undoL = null;
 
 
 			Pair<List<FrontFigure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
 			Pair<List<FrontFigure>,Pair<String,String>> aux = redoes.pop();
 
+
+			undoL = currentPair.getKey();
+
 			currentPair = aux.getValue();
 
-			if (!redoes.isEmpty()) {
-				redoL = redoes.peek().getValue().getValue();
-			}
+
 
 //			if (!redoes.isEmpty()) {
 //				redoL = aux.getValue().getValue();
@@ -316,7 +323,7 @@ public class PaintPane extends BorderPane {
 			undoes.add(current);
 
 			canvasState.setState(aux.getKey());
-			setLabels(aux.getValue().getKey(),redoL);
+			setLabels(undoL,aux.getValue().getValue());
 			redrawCanvas();
 		});
 
