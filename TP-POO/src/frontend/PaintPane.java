@@ -24,12 +24,8 @@ import java.util.*;
 
 public class PaintPane extends BorderPane {
 
-	// BackEnd
 	CanvasState canvasState;
-
 	private Pair<String,String> currentPair = null;
-
-	private boolean redid;
 	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> undoes = new Stack<>();
 	private final Stack<Pair<List<FrontFigure>, Pair<String, String>>> redoes = new Stack<>();
 
@@ -67,7 +63,6 @@ public class PaintPane extends BorderPane {
 	//Botones barra superior
 	private final Label undoLabel = new Label("No hay acciones que deshacer");
 	private final Label undoCounter = new Label("0");
-	//tengo que hacer una coleccion de las cosas que se deshacen
 
 	private final ToggleButton undoButton = new ToggleButton("Deshacer");
 
@@ -76,6 +71,12 @@ public class PaintPane extends BorderPane {
 	//su numero se incrementa cuando se decrementa deshacer
 
 	private final ToggleButton redoButton = new ToggleButton("Rehacer");
+
+	//mensajes para las etiquetas de undo/redo
+	private final String MESSAGE_DRAW = "Dibujar ";
+	private final String MESSAGE_DELETE = "Borrar ";
+	private final String ZOOM_IN = "Agrandar ";
+	private final String ZOOM_OUT = "Achicar ";
 
 	// Dibujar una figura
 	private Point startPoint;
@@ -88,8 +89,10 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
+
 		borderWidthSlider.setShowTickLabels(true);
 		borderWidthSlider.setShowTickMarks(true);
+
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, zoomInButton, zoomOutButton};
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) {
@@ -105,7 +108,7 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(1);
 
-		HBox topButtonsBox = new HBox(10); // repite codigo
+		HBox topButtonsBox = new HBox(10);
 		topButtonsBox.getChildren().addAll(undoLabel,undoCounter,undoButton,redoButton,redoCounter,redoLabel);
 		topButtonsBox.setAlignment(Pos.CENTER);
 		topButtonsBox.setPadding(new Insets(5));
@@ -131,24 +134,19 @@ public class PaintPane extends BorderPane {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
-		final String MESSAGE_DRAW = "Dibujar ";
-		final String MESSAGE_DELETE = "Borrar ";
-
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if(startPoint == null) {
 				return ;
 			}
 			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-				statusPane.updateStatus("Las figuras deben realizarse desde la esquina superior izquierda hasta la esquina inferior derecha");
-				statusPane.errorColor();
-				return ;
+				errorLabel("Las figuras deben realizarse desde la esquina superior izquierda hasta la esquina inferior derecha");
+				return;
 			}
+
 			FrontFigure newFigure;
 
-
 			if(rectangleButton.isSelected()) {
-				//aca tambien se repite mucho codigo
 				newFigure = new FrontRectangle(startPoint, endPoint, fillColorPicker.getValue(), borderColorPicker.getValue(), borderWidthSlider.getValue());
 			}
 			else if(circleButton.isSelected()) {
@@ -208,7 +206,8 @@ public class PaintPane extends BorderPane {
 				if (found) {
 					statusPane.updateStatus(label.toString());
 				} else if (selectedFigure != null) {
-					statusPane.updateStatus("Ninguna figura encontrada");
+					errorLabel("Ninguna figura encontrada");
+//					statusPane.updateStatus("Ninguna figura encontrada");
 					selectedFigure = null;
 				}
 				redrawCanvas();
@@ -239,9 +238,6 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		final String ZOOM_IN = "Agrandar ";
-		final String ZOOM_OUT = "Achicar ";
-
 		zoomInButton.setOnAction(event -> {
 			if(selectedFigure != null) {
 				Pair<String,String> labels = new Pair<>(ZOOM_OUT + selectedFigure, ZOOM_IN + selectedFigure);
@@ -265,26 +261,15 @@ public class PaintPane extends BorderPane {
 		undoButton.setOnAction(event -> {
 
 				if (undoes.isEmpty()) {
-					statusPane.updateStatus("No hay nada para deshacer");
-					statusPane.errorColor();
+					errorLabel("No hay nada para deshacer");
 					return;
 				}
 				String undoL = null;
-//				String redoL = null;
-//
-//				if (!undoes.isEmpty()) {
-//					undoL = undoes.peek().getValue().getKey();
-//				}
-//				if (!redoes.isEmpty()) {
-//					redoL = redoes.peek().getValue().getValue();
-//				}
 
 				Pair<List<FrontFigure>, Pair<String, String>> current = new Pair<>(canvasState.copyState(), currentPair);
 				Pair<List<FrontFigure>, Pair<String, String>> aux = undoes.pop();
 
 				currentPair = aux.getValue();
-
-				redid = true;
 
 				redoes.add(current);
 
@@ -299,8 +284,7 @@ public class PaintPane extends BorderPane {
 
 		redoButton.setOnAction(event -> {
 			if(redoes.isEmpty()){
-				statusPane.updateStatus("No hay nada para rehacer");
-				statusPane.errorColor();
+				errorLabel("No hay nada para rehacer");
 				return;
 			}
 
@@ -310,16 +294,8 @@ public class PaintPane extends BorderPane {
 			Pair<List<FrontFigure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
 			Pair<List<FrontFigure>,Pair<String,String>> aux = redoes.pop();
 
-
 			undoL = currentPair.getKey();
-
 			currentPair = aux.getValue();
-
-
-
-//			if (!redoes.isEmpty()) {
-//				redoL = aux.getValue().getValue();
-//			}
 			undoes.add(current);
 
 			canvasState.setState(aux.getKey());
@@ -370,7 +346,6 @@ public class PaintPane extends BorderPane {
 				gc.setStroke(SELECTED_COLOR);
 			} else {
 				gc.setStroke(figure.getBorderColor());
-
 			}
 			gc.setLineWidth(figure.getBorderWidth());
 			gc.setFill(figure.getFillColor());
@@ -392,7 +367,6 @@ public class PaintPane extends BorderPane {
 	private void setLabels( String undoL, String redoL ) {
 		undoLabel.setText(undoes.size()==0? "No hay acciones para deshacer":undoL);
 		redoLabel.setText(redoes.size()==0? "No hay acciones para rehacer":redoL);
-//		System.out.println(undoes.pop());
 		undoCounter.setText(String.format("%d",undoes.size()));
 		redoCounter.setText(String.format("%d",redoes.size()));
 	}
@@ -400,5 +374,11 @@ public class PaintPane extends BorderPane {
 	private void setCurrent( Pair<String,String> pair )
 	{
 		currentPair = pair;
+	}
+
+	//funcion para el mensaje de error en pantalla
+	private void errorLabel(String message) {
+		statusPane.updateStatus(message);
+		statusPane.errorColor();
 	}
 }
