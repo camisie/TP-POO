@@ -5,7 +5,8 @@
 *.DS_Store
 
 # .idea folder -> xml files
-*.idea
+/idea
+/out
 
 # iml
 *.iml
