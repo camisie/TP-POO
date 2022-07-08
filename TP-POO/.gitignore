@@ -5,11 +5,14 @@
 *.DS_Store
 
 # .idea folder -> xml files
-/idea
+/.idea/
 /out
 
 # iml
-*.iml
+/TPE_POO.iml
+
+# umls
+*.plantuml
 
 # Default ignored files
 /shelf/
