@@ -207,7 +207,6 @@ public class PaintPane extends BorderPane {
 					statusPane.updateStatus(label.toString());
 				} else if (selectedFigure != null) {
 					errorLabel("Ninguna figura encontrada");
-//					statusPane.updateStatus("Ninguna figura encontrada");
 					selectedFigure = null;
 				}
 				redrawCanvas();
@@ -288,13 +287,11 @@ public class PaintPane extends BorderPane {
 				return;
 			}
 
-			String undoL = null;
-
 
 			Pair<List<FrontFigure>,Pair<String,String>> current = new Pair<>(canvasState.copyState(),currentPair);
 			Pair<List<FrontFigure>,Pair<String,String>> aux = redoes.pop();
 
-			undoL = currentPair.getKey();
+			String undoL = currentPair.getKey();
 			currentPair = aux.getValue();
 			undoes.add(current);
 
