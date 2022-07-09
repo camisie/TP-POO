@@ -6,4 +6,4 @@
 * Magdalena Flores Levalle 60077
 
 ## Manual de uso:
-Para ejecutar el programa, ejecutar el main desde el AppLauncher
+Para correr el programa, ejecutar el main desde el AppLauncher.
